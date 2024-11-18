@@ -15,12 +15,16 @@ namespace starskyproductions.minigolf.demo
         [Header("Player Detection")]
         [SerializeField] private Collider boatTrigger;
 
+        [Header("Audio Settings")]
+        [SerializeField] private AudioSource movingAudio;
+        [SerializeField] private AudioSource slowingDownAudio;
+
         #endregion
 
         #region PRIVATE FIELDS
 
         private Vector3 boatStartPosition;
-        private Vector3 boatEndPosition = new Vector3(0f, 13.663f, 0f);
+        private Vector3 boatEndPosition = new Vector3(8.22f, 1.624444f, 20.752f);
         private Coroutine boatCoroutine;
 
         #endregion
@@ -52,16 +56,44 @@ namespace starskyproductions.minigolf.demo
         {
             yield return new WaitForSeconds(activationDelay);
 
-            // Move the boat from start to end position in local space
+            // Play moving audio in a loop
+            if (movingAudio != null)
+            {
+                movingAudio.loop = true;
+                movingAudio.Play();
+            }
+
+            // Move the boat from start to end position in local space with easing
             float elapsedTime = 0f;
             while (elapsedTime < boatMoveDuration)
             {
-                boatTransform.localPosition = Vector3.Lerp(boatStartPosition, boatEndPosition, elapsedTime / boatMoveDuration);
+                float t = elapsedTime / boatMoveDuration;
+                t = t * t * (3f - 2f * t); // Smoothstep easing function
+                boatTransform.localPosition = Vector3.Lerp(boatStartPosition, boatEndPosition, t);
+
+                // Stop moving audio and play slowing down audio when nearing the end
+                if (elapsedTime >= boatMoveDuration * 0.8f && slowingDownAudio != null && !slowingDownAudio.isPlaying)
+                {
+                    movingAudio?.Stop();
+                    slowingDownAudio.Play();
+                }
+
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
             boatTransform.localPosition = boatEndPosition;
+
+            // Stop all audio
+            if (movingAudio != null)
+            {
+                movingAudio.Stop();
+                movingAudio.loop = false;
+            }
+
+            // Deactivate this script
+            this.enabled = false;
+
             boatCoroutine = null;
         }
 
