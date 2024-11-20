@@ -36,16 +36,28 @@ namespace starskyproductions.minigolf.demo
         {
             if (liftTransform != null)
             {
-                // Dynamically set the lift's start position to its current local position
+                // Set the lift's start position to its current local position
                 liftStartPosition = liftTransform.localPosition;
+                Debug.Log("Lift start position set to: " + liftStartPosition);
             }
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Player") && liftCoroutine == null)
+            Debug.Log("Trigger entered by: " + other.name);
+
+            if (other.CompareTag("Player"))
             {
-                liftCoroutine = StartCoroutine(ActivateLift());
+                Debug.Log("Player detected in lift trigger.");
+                if (liftCoroutine == null)
+                {
+                    Debug.Log("Starting lift coroutine.");
+                    liftCoroutine = StartCoroutine(ActivateLift());
+                }
+                else
+                {
+                    Debug.Log("Lift coroutine is already running.");
+                }
             }
         }
 
@@ -56,6 +68,8 @@ namespace starskyproductions.minigolf.demo
         private IEnumerator ActivateLift()
         {
             yield return new WaitForSeconds(activationDelay);
+
+            Debug.Log("Lift moving up.");
 
             // Play moving audio in a loop
             if (movingAudio != null)
@@ -71,6 +85,7 @@ namespace starskyproductions.minigolf.demo
                 float t = elapsedTime / liftMoveDuration;
                 t = t * t * (3f - 2f * t); // Smoothstep easing function
                 liftTransform.localPosition = Vector3.Lerp(liftStartPosition, liftEndPosition, t);
+                Debug.Log("Lift position during upward movement: " + liftTransform.localPosition);
 
                 // Stop moving audio and play slowing down audio when nearing the top
                 if (elapsedTime >= liftMoveDuration * 0.8f && slowingDownAudio != null && !slowingDownAudio.isPlaying)
@@ -84,6 +99,7 @@ namespace starskyproductions.minigolf.demo
             }
 
             liftTransform.localPosition = liftEndPosition;
+            Debug.Log("Lift reached the top at: " + liftEndPosition);
 
             // Stop all audio
             if (movingAudio != null)
@@ -94,6 +110,14 @@ namespace starskyproductions.minigolf.demo
 
             // Wait at the top
             yield return new WaitForSeconds(stayDuration);
+            Debug.Log("Lift staying at the top.");
+
+            // Play moving audio again for going down
+            if (movingAudio != null)
+            {
+                movingAudio.loop = true;
+                movingAudio.Play();
+            }
 
             // Move the lift down
             elapsedTime = 0f;
@@ -102,14 +126,24 @@ namespace starskyproductions.minigolf.demo
                 float t = elapsedTime / liftMoveDuration;
                 t = t * t * (3f - 2f * t); // Smoothstep easing function
                 liftTransform.localPosition = Vector3.Lerp(liftEndPosition, liftStartPosition, t);
+                Debug.Log("Lift position during downward movement: " + liftTransform.localPosition);
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
             liftTransform.localPosition = liftStartPosition;
+            Debug.Log("Lift returned to start position at: " + liftStartPosition);
+
+            // Stop all audio
+            if (movingAudio != null)
+            {
+                movingAudio.Stop();
+                movingAudio.loop = false;
+            }
 
             // Reactivate the lift
             liftCoroutine = null;
+            Debug.Log("Lift coroutine ended, ready for next activation.");
         }
 
         #endregion

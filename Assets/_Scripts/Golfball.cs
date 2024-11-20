@@ -52,5 +52,5 @@ public class Golfball : MonoBehaviour
         _rigidbody.AddForce(hitVector * hitVelocity);
     }
 
-  
+
 }

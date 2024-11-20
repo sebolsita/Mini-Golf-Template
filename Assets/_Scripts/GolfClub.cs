@@ -22,7 +22,7 @@ public class GolfClub : MonoBehaviour
 
     //start is called before the first frame update
     private void Start()
-    {   
+    {
         _boxCollider = GetComponent<BoxCollider>();
         PutterActive(true);
     }
@@ -34,7 +34,7 @@ public class GolfClub : MonoBehaviour
         _previousPosition = transform.position;
 
         _golfClubVelocityMagnitude = GolfClubVelocity.magnitude;
-               
+
     }
 
     // Apply a force to the golf ball based on the velocity of the club
@@ -42,7 +42,7 @@ public class GolfClub : MonoBehaviour
     {
         _golfBall = collision.gameObject.GetComponent<Golfball>();
 
-        if(_golfBall != null)
+        if (_golfBall != null)
         {
             // Get the normal vector of the collision
             Vector3 hitDirection = collision.contacts[0].normal;
@@ -55,7 +55,7 @@ public class GolfClub : MonoBehaviour
             // float hitPower = Mathf.Clamp(hitVelocity - minVelocity, 0f, 100f);
 
             // multiply the velocity by a multiplier
-            _golfClubVelocityMagnitude *= velocityMultiplier;                
+            _golfClubVelocityMagnitude *= velocityMultiplier;
 
             // Apply a force to the golf ball in the direction of the normal vector
             _golfBall.Hit(hitDirection, _golfClubVelocityMagnitude);

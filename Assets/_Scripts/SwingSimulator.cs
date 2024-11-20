@@ -10,7 +10,7 @@ public class SwingSimulator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(swing == false)
+        if (swing == false)
         {
             //reset rotation
             transform.rotation = Quaternion.identity;
