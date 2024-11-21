@@ -18,6 +18,9 @@ namespace starskyproductions.minigolf.demo
         [SerializeField] private float upperLevel = 29f;
         [SerializeField, Range(0f, 1f)] private float transitionSmoothness = 0.1f;
 
+        [Header("Volume Settings")]
+        [SerializeField, Range(0f, 1f)] private float groundVolumeMultiplier = 0.5f; // Adjust to reduce ground audio volume
+
         #endregion
 
         #region PRIVATE FIELDS
@@ -40,6 +43,9 @@ namespace starskyproductions.minigolf.demo
             // Calculate the normalized weight for the upper and ground level audio
             float upperWeight = Mathf.Clamp01((playerHeight - groundLevel) / (upperLevel - groundLevel));
             float groundWeight = 1f - upperWeight;
+
+            // Apply ground volume multiplier
+            groundWeight *= groundVolumeMultiplier;
 
             // Smoothly transition the volume levels
             currentGroundVolume = Mathf.Lerp(currentGroundVolume, groundWeight * 0.9f, transitionSmoothness);
